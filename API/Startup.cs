@@ -54,8 +54,8 @@ namespace API
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
-            app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200")); //Aca le estamos dando el permiso
+            
+            app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200")); //Aca le estamos dando el permiso
 
             app.UseAuthorization();
 

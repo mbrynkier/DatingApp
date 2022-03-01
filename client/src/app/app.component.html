@@ -1,0 +1,7 @@
+<h1>{{title}}</h1> <!-- Esto es el titulo -->
+
+<!-- ul = unorganized list, li = line -->
+<!-- *ngFor hace un for each, y cada usuario dentro de los usuarios -->
+<ul>
+    <li *ngFor='let user of users'>{{user.id}} - {{user.username}}</li>
+</ul>

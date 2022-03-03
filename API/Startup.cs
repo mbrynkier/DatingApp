@@ -13,6 +13,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using API.Data;
+using API.Interfaces;
+using API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using API.Extensions;
 
 namespace API
 {
@@ -28,13 +35,12 @@ namespace API
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddDbContext<DataContext>(options =>
-            {
-                options.UseSqlite(_config.GetConnectionString("DefaultConnection"));
-            });
-
+            
+            services.AddAplicationServices(_config); //dentro de carpeta de Extension (Extending Methods)
             services.AddControllers();
             services.AddCors(); //Agregar esto para que no de error en la pagina, le da permisos
+            services.AddIdentityServices(_config); //dentro de carpeta de Extension (Extending Methods)
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebAPIv5", Version = "v1" });
@@ -56,6 +62,8 @@ namespace API
             app.UseRouting();
             
             app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200")); //Aca le estamos dando el permiso
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

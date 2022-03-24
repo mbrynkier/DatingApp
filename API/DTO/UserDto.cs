@@ -11,5 +11,6 @@ namespace API.DTO
 
         public string Token { get; set; }
         public string PhotoUrl { get; set; } //se agrego asi al logearse devuelve la foto, lo agrego en AccountController y User.ts
+        public string KnownAs { get; set; }
     }
 }

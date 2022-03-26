@@ -1,9 +1,13 @@
-import { HttpClient, HttpHeaders, JsonpClientBackend } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, JsonpClientBackend } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { of, pipe } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Member } from '../_models/member';
+import { PaginatedResult } from '../_models/pagination';
+import { User } from '../_models/user';
+import { UserParams } from '../_models/userParams';
+import { AccountService } from './account.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,21 +15,73 @@ import { Member } from '../_models/member';
 export class MembersService {
   baseUrl = environment.apiUrl;
   members: Member[] = [];
-  constructor(private http: HttpClient) { }
+  memberCache = new Map();
+  user: User;
+  userParams: UserParams;
+  
 
-  getMembers(){
-    if(this.members.length > 0) return of(this.members); //busca el member si lo tiene en el array, 
-    return this.http.get<Member[]>(this.baseUrl + 'users').pipe( //uso el pipe y el map porque devuelve un observable
-      map(members => {
-        this.members = members;
-        return members;
-      })
-    );
+  constructor(private http: HttpClient, private accountService: AccountService) { 
+    this.accountService.currentUser$.pipe(take(1)).subscribe(user =>{
+      this.user = user;
+      this.userParams = new UserParams(user);
+    })
+
+  }
+
+  getUserParams(){
+    return this.userParams;
+  }
+
+  setUserParams(params:UserParams){
+    this.userParams = params
+  }
+
+  resetUserParams(){
+    this.userParams = new UserParams(this.user);
+    return this.userParams
+  }
+
+  // getMembers(){
+  getMembers(userParams : UserParams){    
+    //if(this.members.length > 0) return of(this.members); //busca el member si lo tiene en el array,   
+    var response = this.memberCache.get(Object.values(userParams).join('-')); //Esto se fija si lo guardamos el userparams en cache
+    
+    if(response){
+      return of(response)
+    }
+
+    let params = this.getPaginationHeaders(userParams.pageNumber, userParams.pageSize);
+
+    params = params.append('minAge', userParams.minAge.toString());
+    params = params.append('maxAge', userParams.maxAge.toString());
+    params = params.append('gender', userParams.gender);
+    params = params.append('orderBy', userParams.orderBy);
+
+    return this.getPaginatedResult<Member[]>(this.baseUrl + 'users',params)
+      .pipe(map(response =>{
+        this.memberCache.set(Object.values(userParams).join('-'), response); //aca lo guardamos en memberCache
+        return response;
+      }))
+
+    //return this.http.get<Member[]>(this.baseUrl + 'users').pipe( //uso el pipe y el map porque devuelve un observable
+      // map(members => {
+      //   this.members = members;
+      //   return members;
+      // })
+    //);
   }
 
   getMember(username:String){
-    const member = this.members.find(x => x.username === username);
-    if(member !== undefined) return of(member)
+    // const member = this.members.find(x => x.username === username);
+    // if(member !== undefined) return of(member)
+    const member = [...this.memberCache.values()]
+      .reduce((arr, elem) => arr.concat(elem.result), []) //creamos un array y lo concatenamos con los elem. Esto es para achicar a un array
+      .find((member: Member) => member.username === username);
+
+    if (member){
+      return of(member)
+    }
+
     return this.http.get<Member>(this.baseUrl + 'users/'+ username);
   }
 
@@ -44,5 +100,28 @@ export class MembersService {
 
   deletePhoto(photoId: number){
     return this.http.delete(this.baseUrl + "users/delete-photo/" + photoId) //Esto esta en UserController
+  }
+
+  private getPaginatedResult<T>(url, params) {
+    const paginatedResult: PaginatedResult<T> = new PaginatedResult<T>();
+
+    return this.http.get<T>(url, { observe: 'response', params }).pipe(
+      map(response => {
+        paginatedResult.result = response.body;
+        if (response.headers.get('Pagination') !== null) {
+          paginatedResult.pagination = JSON.parse(response.headers.get('Pagination'));
+        }
+        return paginatedResult;
+      })
+    );
+  }
+
+  private getPaginationHeaders(pageNumber:number, pageSize: number){
+    let params = new HttpParams //parametros para la paginacion
+
+    params = params.append('pageNumber', pageNumber.toString());
+    params = params.append('pageSize', pageSize.toString());
+  
+    return params;
   }
 }

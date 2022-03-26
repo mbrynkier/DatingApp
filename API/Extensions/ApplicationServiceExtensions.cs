@@ -18,6 +18,7 @@ namespace API.Extensions
             services.AddScoped<IPhotoService, PhotoService>(); //Agregamos la interfaz y el service de las photos
             services.AddScoped<ITokenService, TokenService>(); //Agrega las interfaces y el token service            
             services.AddScoped<IUserRepository, UserRepository>(); //Agrega el Repository
+            services.AddScoped<LogUserActivity>(); //ESto es para actualizar la fecha de actividad LogUserActivity.cs
             services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly); //Para mapear los Dto
             services.AddDbContext<DataContext>(options =>
             {

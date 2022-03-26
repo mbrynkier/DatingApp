@@ -19,6 +19,7 @@ namespace API.Extensions
             services.AddScoped<ITokenService, TokenService>(); //Agrega las interfaces y el token service            
             services.AddScoped<IUserRepository, UserRepository>(); //Agrega el Repository
             services.AddScoped<LogUserActivity>(); //ESto es para actualizar la fecha de actividad LogUserActivity.cs
+            services.AddScoped<ILikesRepository, LikesRepository>(); //Repository de lso likes
             services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly); //Para mapear los Dto
             services.AddDbContext<DataContext>(options =>
             {

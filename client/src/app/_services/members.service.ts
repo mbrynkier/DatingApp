@@ -102,6 +102,18 @@ export class MembersService {
     return this.http.delete(this.baseUrl + "users/delete-photo/" + photoId) //Esto esta en UserController
   }
 
+  addLike(username : string){
+    return this.http.post(this.baseUrl + 'likes/' + username, {});
+  }
+
+  getLikes(predicate: string, pageNumber, pageSize){
+    let params = this.getPaginationHeaders(pageNumber,pageSize);
+    params = params.append('predicate', predicate)
+    // return this.http.get(this.baseUrl + 'likes?=' + predicate); //modificamos esto porque devolvia un objeto
+    // return this.http.get<Partial<Member[]>>(this.baseUrl + 'likes?predicate=' + predicate); //le aclaramos que devuelva un members
+    return this.getPaginatedResult<Partial<Member[]>>(this.baseUrl + 'likes',params);
+  }
+
   private getPaginatedResult<T>(url, params) {
     const paginatedResult: PaginatedResult<T> = new PaginatedResult<T>();
 

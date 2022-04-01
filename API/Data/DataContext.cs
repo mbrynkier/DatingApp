@@ -4,23 +4,41 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using API.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace API.Data
 {
-    public class DataContext : DbContext
+    // public class DataContext : DbContext //lo borramos porque implemetamos IdentityDbContext
+    public class DataContext : IdentityDbContext<AppUser, AppRole, int, 
+    IdentityUserClaim<int>, AppUserRole, IdentityUserLogin<int>, 
+    IdentityRoleClaim<int>, IdentityUserToken<int>>
     {
         public DataContext(DbContextOptions options) : base(options)
         {
 
         }
 
-        public DbSet<AppUser> Users { get; set; }
+        // public DbSet<AppUser> Users { get; set; } //IdentityDbContext
         public DbSet<UserLike> Likes { get; set; }
         public DbSet<Message> Messages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder) //Aca estamos haciendo un override para que sean keys
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<AppUser>() //IdentityDbContext
+                .HasMany(ur => ur.UserRoles)
+                .WithOne(u => u.User)
+                .HasForeignKey(ur => ur.UserId)
+                .IsRequired();
+
+            builder.Entity<AppRole>() //IdentityDbContext
+                .HasMany(ur => ur.UserRoles)
+                .WithOne(u => u.Role)
+                .HasForeignKey(ur => ur.RoleId)
+                .IsRequired();    
 
             builder.Entity<UserLike>()
                 .HasKey(k => new{k.SourceUserId, k.LikedUserId});

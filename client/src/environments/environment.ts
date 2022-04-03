@@ -4,8 +4,10 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'https://localhost:5001/api/' //Esto se usa para que no este hardcodeado en account.service.ts
+  apiUrl: 'https://localhost:5001/api/', //Esto se usa para que no este hardcodeado en account.service.ts
+  hubUrl: 'https://localhost:5001/hubs/' //Esto es para SignalR!
 };
+//todo lo que se agrega aca tambien hay que ponerlo en environment.prod.ts
 
 /*
  * For easier debugging in development mode, you can import the following file

@@ -7,6 +7,7 @@ using API.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace API.Data
 {
@@ -23,6 +24,8 @@ namespace API.Data
         // public DbSet<AppUser> Users { get; set; } //IdentityDbContext
         public DbSet<UserLike> Likes { get; set; }
         public DbSet<Message> Messages { get; set; }
+        public DbSet<Group> Groups { get; set; }
+        public DbSet<Connection> Connections { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder) //Aca estamos haciendo un override para que sean keys
         {

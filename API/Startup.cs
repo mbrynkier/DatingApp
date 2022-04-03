@@ -21,6 +21,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using API.Extensions;
 using API.Middleware;
+using API.SignalR;
+using Microsoft.AspNetCore.Routing.Matching;
 
 namespace API
 {
@@ -41,6 +43,7 @@ namespace API
             services.AddControllers();
             services.AddCors(); //Agregar esto para que no de error en la pagina, le da permisos
             services.AddIdentityServices(_config); //dentro de carpeta de Extension (Extending Methods)
+            services.AddSignalR(); //Para agregar signalR
 
             services.AddSwaggerGen(c =>
             {
@@ -57,7 +60,12 @@ namespace API
 
             app.UseRouting();
             
-            app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200")); //Aca le estamos dando el permiso
+            app.UseCors(policy => policy
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .WithOrigins("https://localhost:4200") //Aca le estamos dando el permiso
+                .AllowCredentials()); //Para SignalR
+                
 
             app.UseAuthentication();
 
@@ -66,7 +74,11 @@ namespace API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<PresenceHub>("hubs/presence"); //Para agregar signalR PresenceHub y IdentityServicesExtensions
+                endpoints.MapHub<MessageHub>("hubs/message"); //Para agregar signalR MessageHub
             });
         }
     }
 }
+
+//SignalR PresenceHub y IdentityServicesExtensions

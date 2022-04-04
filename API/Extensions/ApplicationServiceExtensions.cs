@@ -19,10 +19,11 @@ namespace API.Extensions
             services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings")); //Cloudinary Settings.cs
             services.AddScoped<IPhotoService, PhotoService>(); //Agregamos la interfaz y el service de las photos
             services.AddScoped<ITokenService, TokenService>(); //Agrega las interfaces y el token service            
-            services.AddScoped<IUserRepository, UserRepository>(); //Agrega el Repository
+            // services.AddScoped<IUserRepository, UserRepository>(); //Agrega el Repository
             services.AddScoped<LogUserActivity>(); //ESto es para actualizar la fecha de actividad LogUserActivity.cs
-            services.AddScoped<ILikesRepository, LikesRepository>(); //Repository de lso likes
-            services.AddScoped<IMessageRepository, MessageRepository>(); //Repository de los mensajes            
+            // services.AddScoped<ILikesRepository, LikesRepository>(); //Repository de lso likes
+            // services.AddScoped<IMessageRepository, MessageRepository>(); //Repository de los mensajes      
+            services.AddScoped<IUnitOfWork, UnitOfWork>(); //se borraron los otros repository y se centralizo todo en eso.      
             services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly); //Para mapear los Dto
             services.AddDbContext<DataContext>(options =>
             {
